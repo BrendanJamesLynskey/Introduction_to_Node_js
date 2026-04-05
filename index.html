@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Introduction to Node.js</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/theme/black.min.css">
+<style>
+  :root {
+    --amber:  #f5a623;
+    --green:  #4ecb8d;
+    --purple: #a78bfa;
+    --blue:   #60a5fa;
+    --red:    #f87171;
+    --bg:     #0a0a0f;
+    --bg2:    #10101a;
+    --bg3:    #181824;
+    --border: #2a2a3a;
+    --text:   #e8e8f0;
+    --muted:  #8888a8;
+  }
+
+  .reveal-viewport { background: var(--bg); }
+  .reveal .slides section { background: transparent; }
+
+  .reveal { font-family: 'DM Sans', sans-serif; color: var(--text); }
+  .reveal h1, .reveal h2, .reveal h3 { font-family: 'Playfair Display', serif; font-weight: 700; }
+  .reveal h1 { font-size: 1.6em; color: var(--amber); line-height: 1.1; }
+  .reveal h2 { font-size: 1.1em; color: var(--amber); margin-bottom: .2em; }
+  .reveal h3 { font-size: .78em; color: var(--green); margin-bottom: .15em; }
+  .reveal p  { font-size: .56em; line-height: 1.45; color: var(--text); }
+  .reveal li { font-size: .54em; line-height: 1.45; margin-bottom: .1em; }
+  .reveal code { font-family: 'JetBrains Mono', monospace; font-size: .72em; }
+  .reveal pre  { box-shadow: none; background: var(--bg3); border: 1px solid var(--border);
+                 border-radius: 6px; padding: .3em .5em; margin: .25em 0; }
+  .reveal pre code { font-size: .52em; line-height: 1.35; background: transparent; color: #cdd6f4; }
+
+  /* ── slide chrome ── */
+  .slide-hdr {
+    display: flex; align-items: center; gap: .4em;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: .2em; margin-bottom: .3em;
+  }
+  .slide-hdr .tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .42em; font-weight: 500;
+    color: var(--bg); background: var(--amber);
+    padding: .1em .4em; border-radius: 3px;
+    letter-spacing: .04em;
+  }
+  .slide-hdr h2 { margin: 0; font-size: .95em; }
+
+  /* ── two-column ── */
+  .cols   { display: grid; gap: .5em; }
+  .cols-2 { grid-template-columns: 1fr 1fr; }
+  .cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .cols-6040 { grid-template-columns: 6fr 4fr; }
+  .cols-4060 { grid-template-columns: 4fr 6fr; }
+
+  /* ── cards ── */
+  .card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 6px; padding: .35em .6em;
+  }
+  .card.amber { border-left: 3px solid var(--amber); }
+  .card.green { border-left: 3px solid var(--green); }
+  .card.purple{ border-left: 3px solid var(--purple); }
+  .card.blue  { border-left: 3px solid var(--blue); }
+  .card.red   { border-left: 3px solid var(--red); }
+  .card h3 { font-size: .64em; margin: 0 0 .12em; }
+  .card p  { font-size: .52em; margin: 0; color: #b8b8d0; }
+  .card ul { margin: 0; padding-left: 1em; }
+  .card li { font-size: .52em; color: #b8b8d0; margin-bottom: .02em; }
+
+  /* ── table ── */
+  .reveal table { width: 100%; border-collapse: collapse; font-size: .5em; }
+  .reveal table th { background: var(--bg3); color: var(--amber); font-weight: 600;
+                     padding: .2em .4em; border: 1px solid var(--border); text-align: left; }
+  .reveal table td { padding: .18em .4em; border: 1px solid var(--border); color: #ccc; }
+  .reveal table tr:nth-child(even) td { background: #0e0e18; }
+
+  /* ── accent spans ── */
+  .a  { color: var(--amber); font-weight: 600; }
+  .g  { color: var(--green); font-weight: 600; }
+  .p  { color: var(--purple); font-weight: 600; }
+  .b  { color: var(--blue); font-weight: 600; }
+  .r  { color: var(--red); font-weight: 600; }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+
+  /* ── SVG graph diagrams ── */
+  svg.diagram { display: block; margin: 0 auto; overflow: visible; }
+
+  /* ── pill badges ── */
+  .pill {
+    display: inline-block; font-family: 'JetBrains Mono', monospace;
+    font-size: .44em; padding: .08em .4em; border-radius: 99px;
+    border: 1px solid; margin: 0 .08em;
+  }
+  .pill.amber { color: var(--amber); border-color: var(--amber); }
+  .pill.green { color: var(--green); border-color: var(--green); }
+  .pill.purple{ color: var(--purple); border-color: var(--purple); }
+  .pill.blue  { color: var(--blue); border-color: var(--blue); }
+
+  /* ── footer — hidden ── */
+  .reveal .slide-footer { display: none; }
+  /* title slide special */
+  .title-slide h1 { font-size: 1.8em; }
+  .title-slide .subtitle {
+    font-size: .7em; color: var(--green); font-family: 'DM Sans', sans-serif;
+    font-weight: 300; letter-spacing: .04em; margin: .3em 0 .6em;
+  }
+  .title-slide .meta { font-size: .48em; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+
+  /* reduce default margins */
+  .reveal ul, .reveal ol { margin: .15em 0 .15em 1em; }
+  .reveal .slides > section { display: flex !important; flex-direction: column !important; overflow-y: auto !important; align-items: stretch !important; justify-content: flex-start !important; }
+</style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+
+<!-- ═══════════════════════════════ SLIDE 01 — TITLE ═══════════════════════════════ -->
+<section class="title-slide" data-background-color="#0a0a0f">
+  <div style="text-align:left; max-width:820px; margin:0 auto; padding: 1em 0;">
+    <div style="font-family:'JetBrains Mono',monospace; font-size:.5em; color:var(--muted); margin-bottom:.4em; letter-spacing:.1em;">
+      TECHNICAL PRESENTATION
+    </div>
+    <h1>Introduction to<br>Node.js</h1>
+    <div class="subtitle">Server-Side JavaScript &amp; the Event-Driven Runtime</div>
+    <div style="width:60px; height:3px; background:var(--amber); margin-bottom:1.4em;"></div>
+    <div class="meta">V8 &middot; event loop &middot; npm &middot; async I/O &middot; streams &middot; APIs</div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════ SLIDE 02 — AGENDA ═══════════════════════════════ -->
+<section>
+  <div class="slide-hdr"><span class="tag">02</span><h2>Agenda</h2></div>
+  <div class="cols cols-2">
+    <div class="card amber">
+      <h3>Foundations</h3>
+      <ul>
+        <li>What is Node.js &amp; why it exists</li>
+        <li>V8, libuv, and the runtime architecture</li>
+        <li>The event loop in detail</li>
+        <li>Blocking vs non-blocking I/O</li>
+      </ul>
+    </div>
+    <div class="card green">
+      <h3>Core Concepts</h3>
+      <ul>
+        <li>Modules &amp; the require/import system</li>
+        <li>npm &amp; package management</li>
+        <li>Callbacks, Promises, async/await</li>
+        <li>Streams &amp; Buffers</li>
+      </ul>
+    </div>
+    <div class="card purple">
+      <h3>Building Things</h3>
+      <ul>
+        <li>HTTP servers from scratch</li>
+        <li>Express.js &amp; middleware</li>
+        <li>File system &amp; path operations</li>
+        <li>Environment variables &amp; config</li>
+      </ul>
+    </div>
+    <div class="card blue">
+      <h3>Production</h3>
+      <ul>
+        <li>Error handling patterns</li>
+        <li>Testing with Jest &amp; Supertest</li>
+        <li>Security best practices</li>
+        <li>Performance &amp; scaling</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════ SLIDE 03 — WHAT IS NODE ═══════════════════════════════ -->
+<section>
+  <div class="slide-hdr"><span class="tag">03</span><h2>What Is Node.js?</h2></div>
+  <div class="cols cols-6040">
+    <div>
+      <p>Node.js is an <span class="a">open-source, cross-platform JavaScript runtime</span> built on Chrome's V8 engine. Created by <span class="g">Ryan Dahl</span> in 2009, it lets developers run JavaScript outside the browser.</p>
+      <p>The key insight: most server workloads are <span class="p">I/O-bound</span>, not CPU-bound. Traditional thread-per-request models waste resources waiting for disk, network, and database responses. Node uses a single-threaded <span class="b">event-driven</span> model instead.</p>
+      <div class="card amber" style="margin-top:.3em;">
+        <h3>Node.js is NOT</h3>
+        <ul>
+          <li>A programming language (it runs JavaScript)</li>
+          <li>A web framework (Express, Fastify, etc. are frameworks)</li>
+          <li>Single-threaded for everything (worker threads exist)</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="card green">
+        <h3>Key Properties</h3>
+        <ul>
+          <li><span class="a">Event-driven</span> &mdash; non-blocking I/O</li>
+          <li><span class="g">V8 engine</span> &mdash; JIT-compiled, fast</li>
+          <li><span class="p">npm</span> &mdash; largest package ecosystem</li>
+          <li><span class="b">Cross-platform</span> &mdash; Linux, macOS, Windows</li>
+          <li><span class="r">Full-stack JS</span> &mdash; same language front &amp; back</li>
+        </ul>
+      </div>
+      <div class="card purple" style="margin-top:.3em;">
+        <h3>Who Uses Node?</h3>
+        <p>Netflix, LinkedIn, PayPal, Uber, NASA, Walmart, Trello, and millions of startups. npm serves 2+ billion package downloads per week.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════ SLIDE 04 — ARCHITECTURE ═══════════════════════════════ -->
+<section>
+  <div class="slide-hdr"><span class="tag">04</span><h2>Runtime Architecture</h2></div>
+  <p style="margin-bottom:.2em;">Node.js is built on two core components: Google's <span class="a">V8</span> JavaScript engine and <span class="g">libuv</span>, a cross-platform async I/O library written in C.</p>
+  <svg class="diagram" viewBox="0 0 900 320" width="820">
+    <!-- JS layer -->
+    <rect x="10" y="10" width="880" height="55" rx="6" fill="#1a1a2a" stroke="#f5a623" stroke-width="1.5"/>
+    <text x="450" y="44" text-anchor="middle" fill="#f5a623" font-family="Playfair Display,serif" font-size="18" font-weight="700">Your JavaScript Code</text>
+    <!-- Node APIs -->
+    <rect x="10" y="80" width="880" height="55" rx="6" fill="#1a1a2a" stroke="#4ecb8d" stroke-width="1.5"/>
+    <text x="450" y="114" text-anchor="middle" fill="#4ecb8d" font-family="Playfair Display,serif" font-size="18" font-weight="700">Node.js APIs &amp; Bindings (http, fs, net, crypto, stream ...)</text>
+    <!-- V8 + libuv -->
+    <rect x="10" y="150" width="430" height="80" rx="6" fill="#10101a" stroke="#a78bfa" stroke-width="1.5"/>
+    <text x="225" y="182" text-anchor="middle" fill="#a78bfa" font-family="Playfair Display,serif" font-size="17" font-weight="700">V8 Engine</text>
+    <text x="225" y="215" text-anchor="middle" fill="#8888a8" font-family="DM Sans,sans-serif" font-size="13">Parses &amp; compiles JS &rarr; machine code</text>
+    <rect x="460" y="150" width="430" height="80" rx="6" fill="#10101a" stroke="#60a5fa" stroke-width="1.5"/>
+    <text x="675" y="182" text-anchor="middle" fill="#60a5fa" font-family="Playfair Display,serif" font-size="17" font-weight="700">libuv</text>
+    <text x="675" y="215" text-anchor="middle" fill="#8888a8" font-family="DM Sans,sans-serif" font-size="13">Event loop, thread pool, async I/O</text>
+    <!-- OS layer -->
+    <rect x="10" y="250" width="880" height="55" rx="6" fill="#0e0e18" stroke="#2a2a3a" stroke-width="1.5"/>
+    <text x="450" y="284" text-anchor="middle" fill="#8888a8" font-family="JetBrains Mono,monospace" font-size="14">Operating System (epoll / kqueue / IOCP)</text>
+    <!-- arrows -->
+    <line x1="450" y1="65" x2="450" y2="80" stroke="#f5a623" stroke-width="1.5" marker-end="url(#arrowA)"/>
+    <line x1="225" y1="135" x2="225" y2="150" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arrowP)"/>
+    <line x1="675" y1="135" x2="675" y2="150" stroke="#60a5fa" stroke-width="1.5" marker-end="url(#arrowB)"/>
+    <line x1="450" y1="230" x2="450" y2="250" stroke="#8888a8" stroke-width="1.5" marker-end="url(#arrowM)"/>
+    <defs>
+      <marker id="arrowA" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#f5a623"/></marker>
+      <marker id="arrowP" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#a78bfa"/></marker>
+      <marker id="arrowB" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#60a5fa"/></marker>
+      <marker id="arrowM" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#8888a8"/></marker>
+    </defs>
+  </svg>
+  <div class="cols cols-3" style="margin-top:.3em;">
+    <div class="card purple"><h3>V8</h3><p>Google's JS engine. JIT compiles JavaScript to optimised native machine code. Manages heap, garbage collection, and inline caches.</p></div>
+    <div class="card blue"><h3>libuv</h3><p>Provides the event loop, async TCP/UDP sockets, file system ops, child processes, and a thread pool (default 4 threads) for blocking work.</p></div>
+    <div class="card amber"><h3>Node Bindings</h3><p>C++ glue layer that connects JavaScript to libuv and OS-level APIs. Exposed to user code as built-in modules like <code>fs</code>, <code>http</code>, <code>net</code>.</p></div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════ SLIDE 05 — EVENT LOOP ═══════════════════════════════ -->
+<section>
+  <div class="slide-hdr"><span class="tag">05</span><h2>The Event Loop</h2></div>
+  <p>The event loop is the heart of Node.js. It continuously checks for pending work and dispatches callbacks. Each iteration is called a <span class="a">tick</span>.</p>
+  <svg class="diagram" viewBox="0 0 900 260" width="820">
+    <!-- phases -->
+    <rect x="10" y="30" width="130" height="50" rx="5" fill="#1a1a2a" stroke="#f5a623" stroke-width="1.5"/>
+    <text x="75" y="60" text-anchor="middle" fill="#f5a623" font-family="JetBrains Mono,monospace" font-size="11" font-weight="500">timers</text>
+    <rect x="160" y="30" width="130" height="50" rx="5" fill="#1a1a2a" stroke="#4ecb8d" stroke-width="1.5"/>
+    <text x="225" y="60" text-anchor="middle" fill="#4ecb8d" font-family="JetBrains Mono,monospace" font-size="11" font-weight="500">pending I/O</text>
+    <rect x="310" y="30" width="130" height="50" rx="5" fill="#1a1a2a" stroke="#a78bfa" stroke-width="1.5"/>
+    <text x="375" y="60" text-anchor="middle" fill="#a78bfa" font-family="JetBrains Mono,monospace" font-size="11" font-weight="500">idle/prepare</text>
+    <rect x="460" y="30" width="130" height="50" rx="5" fill="#1a1a2a" stroke="#60a5fa" stroke-width="1.5"/>
+    <text x="525" y="55" text-anchor="middle" fill="#60a5fa" font-family="JetBrains Mono,monospace" font-size="11" font-weight="500">poll</text>
+    <rect x="610" y="30" width="130" height="50" rx="5" fill="#1a1a2a" stroke="#f87171" stroke-width="1.5"/>
+    <text x="675" y="60" text-anchor="middle" fill="#f87171" font-family="JetBrains Mono,monospace" font-size="11" font-weight="500">check</text>
+    <rect x="760" y="30" width="130" height="50" rx="5" fill="#1a1a2a" stroke="#8888a8" stroke-width="1.5"/>
+    <text x="825" y="60" text-anchor="middle" fill="#8888a8" font-family="JetBrains Mono,monospace" font-size="11" font-weight="500">close</text>
+    <!-- arrows between phases -->
+    <line x1="140" y1="55" x2="160" y2="55" stroke="#2a2a3a" stroke-width="1.5" marker-end="url(#arrowG)"/>
+    <line x1="290" y1="55" x2="310" y2="55" stroke="#2a2a3a" stroke-width="1.5" marker-end="url(#arrowG)"/>
+    <line x1="440" y1="55" x2="460" y2="55" stroke="#2a2a3a" stroke-width="1.5" marker-end="url(#arrowG)"/>
+    <line x1="590" y1="55" x2="610" y2="55" stroke="#2a2a3a" stroke-width="1.5" marker-end="url(#arrowG)"/>
+    <line x1="740" y1="55" x2="760" y2="55" stroke="#2a2a3a" stroke-width="1.5" marker-end="url(#arrowG)"/>
+    <!-- loop-back arrow -->
+    <path d="M890,55 Q920,55 920,110 Q920,160 450,160 Q10,160 10,110 Q10,80 10,55" fill="none" stroke="#f5a623" stroke-width="1" stroke-dasharray="4,3"/>
+    <defs><marker id="arrowG" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#2a2a3a"/></marker></defs>
+  </svg>
+  <div class="cols cols-3" style="margin-top:.2em;">
+    <div class="card amber">
+      <h3>timers</h3>
+      <p>Executes callbacks from <code>setTimeout</code> and <code>setInterval</code> whose threshold has elapsed.</p>
+    </div>
+    <div class="card blue">
+      <h3>poll</h3>
+      <p>Retrieves new I/O events. Executes I/O-related callbacks (almost all except close, timers, and <code>setImmediate</code>).</p>
+    </div>
+    <div class="card red">
+      <h3>check</h3>
+      <p>Executes <code>setImmediate()</code> callbacks. Runs immediately after the poll phase completes.</p>
+    </div>
+  </div>
+  <div class="card green" style="margin-top:.3em;">
+    <h3>Microtasks: process.nextTick() &amp; Promises</h3>
+    <p>Microtasks run <em>between</em> every phase. <code>process.nextTick()</code> fires before Promise callbacks. Starving the event loop with recursive <code>nextTick</code> is a common anti-pattern.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════ SLIDE 06 — BLOCKING VS NON-BLOCKING ═══════════════════════════════ -->
+<section>
+  <div class="slide-hdr"><span class="tag">06</span><h2>Blocking vs Non-Blocking I/O</h2></div>
+  <div class="cols cols-2">
+    <div>
+      <div class="card red">
+        <h3>Blocking (synchronous)</h3>
+        <p>The thread waits until the operation completes. No other work can happen.</p>
+      </div>
+<pre><code class="language-javascript">const fs = require('fs');
+
+// Thread blocks here until file is fully read
+const data = fs.readFileSync('/var/log/app.log');
+console.log(data.length);
+// Nothing else runs until readFileSync returns</code></pre>
+    </div>
+    <div>
+      <div class="card green">
+        <h3>Non-blocking (asynchronous)</h3>
+        <p>The call returns immediately. A callback fires when the operation finishes.</p>
+      </div>
+<pre><code class="language-javascript">const fs = require('fs');
+
+// Returns immediately — callback fires later
+fs.readFile('/var/log/app.log', (err, data) =&gt; {
+  if (err) throw err;
+  console.log(data.length);
+});
+// Event loop is free to handle other requests</code></pre>
+    </div>
+  </div>
+  <div class="card amber" style="margin-top:.3em;">
+    <h3>Why This Matters</h3>
+    <p>A single blocking call on the main thread <span class="r">freezes the entire server</span>. With 10,000 concurrent connections, one <code>readFileSync</code> blocks all of them. Non-blocking I/O lets Node handle thousands of concurrent connections with a single thread, because the event loop delegates waiting to the OS and libuv thread pool.</p>
+  </div>
+  <div class="cols cols-3" style="margin-top:.2em;">
+    <div class="card purple"><h3>Rule of Thumb</h3><p>Never use <code>*Sync</code> methods in server code. They're acceptable in CLI scripts and startup config loading.</p></div>
+    <div class="card blue"><h3>Thread Pool</h3><p>libuv uses 4 threads (configurable via <code>UV_THREADPOOL_SIZE</code>) for inherently blocking ops: DNS lookups, file system, zlib, crypto.</p></div>
+    <div class="card green"><h3>Network I/O</h3><p>TCP/UDP is handled by OS-level async primitives (epoll, kqueue, IOCP) &mdash; no thread pool needed.</p></div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════ SLIDE 07 — MODULES ═══════════════════════════════ -->
+<section>
+  <div class="slide-hdr"><span class="tag">07</span><h2>Modules &amp; the Module System</h2></div>
+  <p>Node has two module systems: the original <span class="a">CommonJS</span> (<code>require</code>) and the newer <span class="g">ES Modules</span> (<code>import</code>). Both coexist in modern Node.</p>
+  <div class="cols cols-2">
+    <div>
+      <h3 style="color:var(--amber);">CommonJS (CJS)</h3>
+<pre><code class="language-javascript">// math.js
+function add(a, b) { return a + b; }
+module.exports = { add };
+
+// app.js
+const { add } = require('./math');
+console.log(add(2, 3)); // 5</code></pre>
+      <div class="card amber" style="margin-top:.2em;">
+        <ul>
+          <li>Synchronous loading</li>
+          <li>Modules cached after first <code>require()</code></li>
+          <li><code>.js</code> extension — default in Node</li>
+          <li>Dynamic: can <code>require()</code> inside conditionals</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <h3 style="color:var(--green);">ES Modules (ESM)</h3>
+<pre><code class="language-javascript">// math.mjs
+export function add(a, b) { return a + b; }
+
+// app.mjs
+import { add } from './math.mjs';
+console.log(add(2, 3)); // 5</code></pre>
+      <div class="card green" style="margin-top:.2em;">
+        <ul>
+          <li>Asynchronous loading</li>
+          <li>Static analysis &amp; tree-shaking friendly</li>
+          <li><code>.mjs</code> or <code>"type": "module"</code> in package.json</li>
+          <li>Top-level <code>await</code> supported</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="card purple" style="margin-top:.3em;">
+    <h3>Module Resolution Order</h3>
+    <p><code>require('foo')</code> &rarr; 1. Core module? 2. <code>./node_modules/foo</code>? 3. Parent <code>node_modules</code>? &hellip; walks up to root. Each resolved module is cached by its absolute path.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════ SLIDE 08 — NPM ═══════════════════════════════ -->
+<section>
+  <div class="slide-hdr"><span class="tag">08</span><h2>npm &amp; Package Management</h2></div>
+  <div class="cols cols-6040">
+    <div>
+      <p><span class="a">npm</span> (Node Package Manager) ships with every Node installation. It manages dependencies, scripts, and publishing. The registry hosts <span class="g">2.1 million+</span> packages.</p>
+<pre><code class="language-bash"># Initialise a new project
+npm init -y
+
+# Install dependencies
+npm install express        # production dep
+npm install -D jest        # dev dependency
+
+# Key files
+package.json               # manifest &amp; scripts
+package-lock.json          # exact dependency tree
+node_modules/              # installed packages</code></pre>
+      <div class="card amber" style="margin-top:.2em;">
+        <h3>Scripts</h3>
+<pre><code class="language-json">{
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "jest --coverage",
+    "lint": "eslint ."
+  }
+}</code></pre>
+      </div>
+    </div>
+    <div>
+      <div class="card green">
+        <h3>Semantic Versioning</h3>
+        <p><span class="a">MAJOR</span>.<span class="g">MINOR</span>.<span class="b">PATCH</span></p>
+        <ul>
+          <li><code>^1.2.3</code> &mdash; allow minor + patch updates</li>
+          <li><code>~1.2.3</code> &mdash; allow patch updates only</li>
+          <li><code>1.2.3</code> &mdash; exact version</li>
+        </ul>
+      </div>
+      <div class="card purple" style="margin-top:.3em;">
+        <h3>Lock Files</h3>
+        <p><code>package-lock.json</code> pins the exact version of every transitive dependency. <span class="r">Always commit it.</span> Ensures reproducible installs across machines.</p>
+      </div>
+      <div class="card blue" style="margin-top:.3em;">
+        <h3>Alternatives</h3>
+        <ul>
+          <li><span class="a">yarn</span> &mdash; parallel installs, workspaces</li>
+          <li><span class="g">pnpm</span> &mdash; content-addressable store, fast, strict</li>
+          <li><span class="p">corepack</span> &mdash; ships with Node, manages package managers</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════ SLIDE 09 — ASYNC PATTERNS ═══════════════════════════════ -->
+<section>
+  <div class="slide-hdr"><span class="tag">09</span><h2>Async Patterns: Callbacks &rarr; Promises &rarr; async/await</h2></div>
+  <div class="cols cols-3">
+    <div>
+      <div class="card red">
+        <h3>Callbacks (legacy)</h3>
+        <p>Error-first convention. Nesting leads to "callback hell".</p>
+      </div>
+<pre><code class="language-javascript">fs.readFile('a.txt', (err, a) =&gt; {
+  if (err) return cb(err);
+  fs.readFile('b.txt', (err, b) =&gt; {
+    if (err) return cb(err);
+    fs.writeFile('c.txt', a + b, cb);
+  });
+});</code></pre>
+    </div>
+    <div>
+      <div class="card amber">
+        <h3>Promises</h3>
+        <p>Chainable <code>.then()</code> / <code>.catch()</code>. Flat structure.</p>
+      </div>
+<pre><code class="language-javascript">const fsp = require('fs').promises;
+
+fsp.readFile('a.txt')
+  .then(a =&gt; fsp.readFile('b.txt')
+    .then(b =&gt; fsp.writeFile('c.txt', a + b)))
+  .catch(err =&gt; console.error(err));</code></pre>
+    </div>
+    <div>
+      <div class="card green">
+        <h3>async / await</h3>
+        <p>Syntactic sugar over Promises. Reads like sync code.</p>
+      </div>
+<pre><code class="language-javascript">const fsp = require('fs').promises;
+
+async function merge() {
+  const a = await fsp.readFile('a.txt');
+  const b = await fsp.readFile('b.txt');
+  await fsp.writeFile('c.txt', a + b);
+}
+merge().catch(console.error);</code></pre>
+    </div>
+  </div>
+  <div class="cols cols-2" style="margin-top:.3em;">
+    <div class="card purple">
+      <h3>Parallel Execution</h3>
+<pre><code class="language-javascript">// Run independent tasks concurrently
+const [users, orders] = await Promise.all([
+  db.query('SELECT * FROM users'),
+  db.query('SELECT * FROM orders')
+]);</code></pre>
+    </div>
+    <div class="card blue">
+      <h3>Error Handling</h3>
+<pre><code class="language-javascript">try {
+  const data = await fetchData();
+} catch (err) {
+  // Handle or rethrow
+  logger.error('Fetch failed', err);
+  throw err;
+}</code></pre>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════ SLIDE 10 — STREAMS ═══════════════════════════════ -->
+<section>
+  <div class="slide-hdr"><span class="tag">10</span><h2>Streams &amp; Buffers</h2></div>
+  <p>Streams process data in <span class="a">chunks</span> rather than loading everything into memory. Essential for handling large files, network data, and real-time processing.</p>
+  <div class="cols cols-2">
+    <div>
+      <table>
+        <thead><tr><th>Stream Type</th><th>Example</th><th>Use</th></tr></thead>
+        <tbody>
+          <tr><td><span class="a">Readable</span></td><td><code>fs.createReadStream</code></td><td>Read from source</td></tr>
+          <tr><td><span class="g">Writable</span></td><td><code>fs.createWriteStream</code></td><td>Write to destination</td></tr>
+          <tr><td><span class="p">Duplex</span></td><td><code>net.Socket</code></td><td>Both read &amp; write</td></tr>
+          <tr><td><span class="b">Transform</span></td><td><code>zlib.createGzip</code></td><td>Modify data in transit</td></tr>
+        </tbody>
+      </table>
+      <div class="card green" style="margin-top:.3em;">
+        <h3>Buffers</h3>
+        <p>Fixed-size chunks of raw binary data. Allocated outside the V8 heap. Used for file I/O, network protocols, and cryptography.</p>
+<pre><code class="language-javascript">const buf = Buffer.from('Hello, Node!');
+console.log(buf.toString('hex'));
+// 48656c6c6f2c204e6f646521</code></pre>
+      </div>
+    </div>
+    <div>
+<pre><code class="language-javascript">const fs = require('fs');
+const zlib = require('zlib');
+
+// Compress a large file using streams
+// Memory usage stays low regardless of file size
+fs.createReadStream('input.log')       // Readable
+  .pipe(zlib.createGzip())             // Transform
+  .pipe(fs.createWriteStream('input.log.gz')) // Writable
+  .on('finish', () =&gt; console.log('Done!'));</code></pre>
+      <div class="card amber" style="margin-top:.3em;">
+        <h3>pipeline() &mdash; the modern way</h3>
+<pre><code class="language-javascript">const { pipeline } = require('stream/promises');
+
+await pipeline(
+  fs.createReadStream('input.log'),
+  zlib.createGzip(),
+  fs.createWriteStream('input.log.gz')
+);
+// Automatically handles errors &amp; cleanup</code></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════ SLIDE 11 — HTTP SERVER ═══════════════════════════════ -->
+<section>
+  <div class="slide-hdr"><span class="tag">11</span><h2>Building an HTTP Server</h2></div>
+  <p>Node's built-in <code>http</code> module can create servers with zero external dependencies. This is what frameworks like Express build on top of.</p>
+  <div class="cols cols-2">
+    <div>
+      <h3 style="color:var(--amber);">Bare Node.js</h3>
+<pre><code class="language-javascript">const http = require('http');
+
+const server = http.createServer((req, res) =&gt; {
+  // req = IncomingMessage (Readable stream)
+  // res = ServerResponse  (Writable stream)
+
+  if (req.method === 'GET' &amp;&amp; req.url === '/api/health') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ status: 'ok' }));
+  } else {
+    res.writeHead(404);
+    res.end('Not Found');
+  }
+});
+
+server.listen(3000, () =&gt; {
+  console.log('Listening on http://localhost:3000');
+});</code></pre>
+    </div>
+    <div>
+      <div class="card green">
+        <h3>What the http Module Gives You</h3>
+        <ul>
+          <li>TCP socket management</li>
+          <li>HTTP/1.1 parsing (via llhttp, written in C)</li>
+          <li>Keep-alive connection pooling</li>
+          <li>Request/response streaming</li>
+          <li>HTTPS via <code>https.createServer()</code> with TLS certs</li>
+        </ul>
+      </div>
+      <div class="card purple" style="margin-top:.3em;">
+        <h3>What It Doesn't Give You</h3>
+        <ul>
+          <li>Routing (no path matching / params)</li>
+          <li>Body parsing (must read the stream yourself)</li>
+          <li>Middleware pipeline</li>
+          <li>Static file serving</li>
+          <li>Cookie / session handling</li>
+        </ul>
+        <p style="margin-top:.2em;">This is why frameworks exist &rarr;</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════ SLIDE 12 — EXPRESS ═══════════════════════════════ -->
+<section>
+  <div class="slide-hdr"><span class="tag">12</span><h2>Express.js &amp; Middleware</h2></div>
+  <div class="cols cols-6040">
+    <div>
+<pre><code class="language-javascript">const express = require('express');
+const app = express();
+
+// Built-in middleware
+app.use(express.json());        // parse JSON bodies
+app.use(express.static('public'));
+
+// Custom middleware — runs on every request
+app.use((req, res, next) =&gt; {
+  console.log(`${req.method} ${req.url}`);
+  next();  // pass control to next handler
+});
+
+// Route handlers
+app.get('/api/users', async (req, res) =&gt; {
+  const users = await db.findAll();
+  res.json(users);
+});
+
+app.post('/api/users', async (req, res) =&gt; {
+  const user = await db.create(req.body);
+  res.status(201).json(user);
+});
+
+// Error-handling middleware (4 params)
+app.use((err, req, res, next) =&gt; {
+  console.error(err.stack);
+  res.status(500).json({ error: 'Server error' });
+});
+
+app.listen(3000);</code></pre>
+    </div>
+    <div>
+      <div class="card amber">
+        <h3>The Middleware Pattern</h3>
+        <p>Middleware are functions with signature <code>(req, res, next)</code>. They execute in order and form a pipeline. Each can modify the request/response, end the cycle, or call <code>next()</code>.</p>
+      </div>
+      <svg class="diagram" viewBox="0 0 340 200" width="320" style="margin-top:.4em;">
+        <rect x="10" y="10" width="100" height="40" rx="4" fill="#1a1a2a" stroke="#f5a623" stroke-width="1.5"/>
+        <text x="60" y="35" text-anchor="middle" fill="#f5a623" font-family="JetBrains Mono,monospace" font-size="10">logger</text>
+        <rect x="120" y="10" width="100" height="40" rx="4" fill="#1a1a2a" stroke="#4ecb8d" stroke-width="1.5"/>
+        <text x="170" y="35" text-anchor="middle" fill="#4ecb8d" font-family="JetBrains Mono,monospace" font-size="10">auth</text>
+        <rect x="230" y="10" width="100" height="40" rx="4" fill="#1a1a2a" stroke="#a78bfa" stroke-width="1.5"/>
+        <text x="280" y="35" text-anchor="middle" fill="#a78bfa" font-family="JetBrains Mono,monospace" font-size="10">handler</text>
+        <line x1="110" y1="30" x2="120" y2="30" stroke="#2a2a3a" stroke-width="1.5" marker-end="url(#arrowG)"/>
+        <line x1="220" y1="30" x2="230" y2="30" stroke="#2a2a3a" stroke-width="1.5" marker-end="url(#arrowG)"/>
+        <text x="115" y="65" text-anchor="middle" fill="#8888a8" font-family="JetBrains Mono,monospace" font-size="9">next()</text>
+        <text x="225" y="65" text-anchor="middle" fill="#8888a8" font-family="JetBrains Mono,monospace" font-size="9">next()</text>
+      </svg>
+      <div class="card blue" style="margin-top:.3em;">
+        <h3>Popular Middleware</h3>
+        <ul>
+          <li><span class="a">cors</span> &mdash; Cross-Origin Resource Sharing</li>
+          <li><span class="g">helmet</span> &mdash; security headers</li>
+          <li><span class="p">morgan</span> &mdash; HTTP request logging</li>
+          <li><span class="b">express-rate-limit</span> &mdash; rate limiting</li>
+          <li><span class="r">passport</span> &mdash; authentication strategies</li>
+        </ul>
+      </div>
+      <div class="card green" style="margin-top:.3em;">
+        <h3>Alternatives to Express</h3>
+        <p><span class="a">Fastify</span> (schema-based, 2-3x faster), <span class="g">Koa</span> (async-native, minimal), <span class="p">Hono</span> (ultrafast, edge-ready), <span class="b">NestJS</span> (opinionated, TypeScript-first).</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════ SLIDE 13 — FILE SYSTEM ═══════════════════════════════ -->
+<section>
+  <div class="slide-hdr"><span class="tag">13</span><h2>File System &amp; Path</h2></div>
+  <div class="cols cols-2">
+    <div>
+      <div class="card amber">
+        <h3>fs/promises API (modern)</h3>
+      </div>
+<pre><code class="language-javascript">const fs = require('fs/promises');
+const path = require('path');
+
+async function processConfig() {
+  // Read
+  const raw = await fs.readFile('config.json', 'utf8');
+  const config = JSON.parse(raw);
+
+  // Write
+  config.updatedAt = new Date().toISOString();
+  await fs.writeFile(
+    'config.json',
+    JSON.stringify(config, null, 2)
+  );
+
+  // Directory operations
+  await fs.mkdir('logs', { recursive: true });
+  const files = await fs.readdir('logs');
+
+  // File info
+  const stats = await fs.stat('config.json');
+  console.log(`Size: ${stats.size} bytes`);
+}
+</code></pre>
+    </div>
+    <div>
+      <div class="card green">
+        <h3>path module — cross-platform paths</h3>
+      </div>
+<pre><code class="language-javascript">const path = require('path');
+
+path.join('src', 'utils', 'db.js');
+// Linux:   'src/utils/db.js'
+// Windows: 'src\\utils\\db.js'
+
+path.resolve('..', 'config.json');
+// '/home/user/project/config.json'
+
+path.basename('/app/server.js');   // 'server.js'
+path.extname('photo.png');         // '.png'
+path.dirname('/app/src/index.js'); // '/app/src'
+
+// Common pattern: resolve relative to this file
+const configPath = path.join(__dirname, 'config.json');
+</code></pre>
+      <div class="card purple" style="margin-top:.3em;">
+        <h3>Watch for Changes</h3>
+<pre><code class="language-javascript">const watcher = fs.watch('./src', { recursive: true });
+for await (const event of watcher) {
+  console.log(event.eventType, event.filename);
+}</code></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════ SLIDE 14 — ENV & CONFIG ═══════════════════════════════ -->
+<section>
+  <div class="slide-hdr"><span class="tag">14</span><h2>Environment Variables &amp; Configuration</h2></div>
+  <div class="cols cols-2">
+    <div>
+      <p>Environment variables separate <span class="a">config from code</span>. The 12-Factor App methodology recommends storing all config in env vars.</p>
+<pre><code class="language-bash"># .env (never commit this file!)
+PORT=3000
+DATABASE_URL=postgres://user:pass@localhost/mydb
+JWT_SECRET=super-secret-key
+NODE_ENV=production</code></pre>
+<pre><code class="language-javascript">// Access in Node.js
+const port = process.env.PORT || 3000;
+const dbUrl = process.env.DATABASE_URL;
+
+// Since Node 20.6 — built-in .env support
+// node --env-file=.env server.js</code></pre>
+      <div class="card red" style="margin-top:.3em;">
+        <h3>Security Rules</h3>
+        <ul>
+          <li>Never commit <code>.env</code> files — add to <code>.gitignore</code></li>
+          <li>Use different secrets per environment</li>
+          <li>Rotate secrets regularly</li>
+          <li>Use a vault in production (AWS Secrets Manager, HashiCorp Vault)</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="card green">
+        <h3>NODE_ENV</h3>
+        <p>The most important env var. Conventional values:</p>
+        <ul>
+          <li><span class="a">development</span> &mdash; verbose logging, stack traces</li>
+          <li><span class="g">production</span> &mdash; optimised, minimal logging</li>
+          <li><span class="b">test</span> &mdash; test databases, mocked services</li>
+        </ul>
+        <p style="margin-top:.15em;">Express and many libraries change behaviour based on this value. In production, Express caches view templates and generates less verbose errors.</p>
+      </div>
+      <div class="card purple" style="margin-top:.3em;">
+        <h3>process Object Highlights</h3>
+        <ul>
+          <li><code>process.env</code> &mdash; environment variables</li>
+          <li><code>process.argv</code> &mdash; command-line arguments</li>
+          <li><code>process.cwd()</code> &mdash; current working directory</li>
+          <li><code>process.pid</code> &mdash; process ID</li>
+          <li><code>process.exit(code)</code> &mdash; terminate the process</li>
+          <li><code>process.memoryUsage()</code> &mdash; heap statistics</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════ SLIDE 15 — ERROR HANDLING ═══════════════════════════════ -->
+<section>
+  <div class="slide-hdr"><span class="tag">15</span><h2>Error Handling Patterns</h2></div>
+  <div class="cols cols-2">
+    <div>
+      <div class="card red">
+        <h3>Operational vs Programmer Errors</h3>
+        <ul>
+          <li><span class="a">Operational</span> &mdash; expected failures: network timeout, invalid user input, file not found. Handle gracefully.</li>
+          <li><span class="r">Programmer</span> &mdash; bugs: undefined is not a function, wrong type. Fix the code.</li>
+        </ul>
+      </div>
+<pre><code class="language-javascript">// Express async error wrapper
+const asyncHandler = (fn) =&gt; (req, res, next) =&gt;
+  Promise.resolve(fn(req, res, next)).catch(next);
+
+app.get('/users/:id', asyncHandler(async (req, res) =&gt; {
+  const user = await db.findById(req.params.id);
+  if (!user) {
+    const err = new Error('User not found');
+    err.statusCode = 404;
+    throw err;
+  }
+  res.json(user);
+}));</code></pre>
+    </div>
+    <div>
+<pre><code class="language-javascript">// Global error handler middleware
+app.use((err, req, res, next) =&gt; {
+  const status = err.statusCode || 500;
+  const message = status === 500
+    ? 'Internal Server Error'
+    : err.message;
+
+  if (status === 500) logger.error(err);
+
+  res.status(status).json({ error: message });
+});</code></pre>
+      <div class="card amber" style="margin-top:.3em;">
+        <h3>Process-Level Safety Nets</h3>
+<pre><code class="language-javascript">// Catch unhandled promise rejections
+process.on('unhandledRejection', (reason) =&gt; {
+  logger.fatal('Unhandled rejection', reason);
+  process.exit(1); // let process manager restart
+});
+
+// Catch uncaught exceptions
+process.on('uncaughtException', (err) =&gt; {
+  logger.fatal('Uncaught exception', err);
+  process.exit(1);
+});</code></pre>
+      </div>
+    </div>
+  </div>
+  <div class="card green" style="margin-top:.2em;">
+    <h3>Graceful Shutdown</h3>
+    <p>On <code>SIGTERM</code>, stop accepting new connections, finish in-flight requests, close database pools, then exit. Process managers (PM2, Kubernetes) send <code>SIGTERM</code> before force-killing.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════ SLIDE 16 — TESTING ═══════════════════════════════ -->
+<section>
+  <div class="slide-hdr"><span class="tag">16</span><h2>Testing with Jest &amp; Supertest</h2></div>
+  <div class="cols cols-2">
+    <div>
+      <div class="card amber"><h3>Unit Test</h3></div>
+<pre><code class="language-javascript">// utils.js
+function slugify(text) {
+  return text.toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+}
+module.exports = { slugify };
+
+// utils.test.js
+const { slugify } = require('./utils');
+
+describe('slugify', () =&gt; {
+  test('converts spaces to hyphens', () =&gt; {
+    expect(slugify('Hello World')).toBe('hello-world');
+  });
+
+  test('strips special characters', () =&gt; {
+    expect(slugify('Node.js & npm!'))
+      .toBe('node-js-npm');
+  });
+
+  test('handles empty string', () =&gt; {
+    expect(slugify('')).toBe('');
+  });
+});</code></pre>
+    </div>
+    <div>
+      <div class="card green"><h3>Integration Test (API)</h3></div>
+<pre><code class="language-javascript">const request = require('supertest');
+const app = require('./app');
+
+describe('GET /api/users', () =&gt; {
+  test('returns 200 and user list', async () =&gt; {
+    const res = await request(app)
+      .get('/api/users')
+      .expect('Content-Type', /json/)
+      .expect(200);
+
+    expect(res.body).toBeInstanceOf(Array);
+    expect(res.body[0]).toHaveProperty('name');
+  });
+
+  test('returns 404 for unknown user', async () =&gt; {
+    await request(app)
+      .get('/api/users/99999')
+      .expect(404);
+  });
+});</code></pre>
+      <div class="card purple" style="margin-top:.3em;">
+        <h3>Test Commands</h3>
+<pre><code class="language-bash">npx jest                 # run all tests
+npx jest --watch         # re-run on changes
+npx jest --coverage      # coverage report</code></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════ SLIDE 17 — SECURITY ═══════════════════════════════ -->
+<section>
+  <div class="slide-hdr"><span class="tag">17</span><h2>Security Best Practices</h2></div>
+  <div class="cols cols-2">
+    <div>
+      <table>
+        <thead><tr><th>Threat</th><th>Mitigation</th></tr></thead>
+        <tbody>
+          <tr><td><span class="r">Injection</span> (SQL, NoSQL, command)</td><td>Parameterised queries, input validation, never concatenate user input into commands</td></tr>
+          <tr><td><span class="r">XSS</span></td><td>Escape output, use <code>helmet</code> for CSP headers, avoid <code>innerHTML</code></td></tr>
+          <tr><td><span class="r">Prototype Pollution</span></td><td>Freeze prototypes, validate JSON keys, use <code>Object.create(null)</code></td></tr>
+          <tr><td><span class="r">ReDoS</span></td><td>Avoid complex regex on user input, set timeouts, use <code>re2</code></td></tr>
+          <tr><td><span class="r">Dependency attacks</span></td><td>Audit with <code>npm audit</code>, pin versions, use lockfiles</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div>
+<pre><code class="language-javascript">const express = require('express');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+
+const app = express();
+
+// Security headers (CSP, HSTS, X-Frame, etc.)
+app.use(helmet());
+
+// Rate limiting
+app.use(rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 min
+  max: 100,                  // 100 req/window
+}));
+
+// Never expose stack traces in production
+app.set('env', 'production');
+
+// Parameterised query — prevents SQL injection
+const user = await db.query(
+  'SELECT * FROM users WHERE id = $1',
+  [req.params.id]  // NOT string concatenation
+);</code></pre>
+    </div>
+  </div>
+  <div class="cols cols-3" style="margin-top:.3em;">
+    <div class="card amber"><h3>npm audit</h3><p>Run <code>npm audit</code> regularly. Use <code>npm audit fix</code> to auto-patch. Integrate into CI.</p></div>
+    <div class="card green"><h3>Keep Updated</h3><p>Node.js LTS gets security patches for 30 months. Even-numbered releases (18, 20, 22) are LTS. Odd-numbered are current/experimental.</p></div>
+    <div class="card purple"><h3>Principle of Least Privilege</h3><p>Run Node processes as non-root. Restrict file system access. Use minimal IAM roles in cloud environments.</p></div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════ SLIDE 18 — PERFORMANCE ═══════════════════════════════ -->
+<section>
+  <div class="slide-hdr"><span class="tag">18</span><h2>Performance &amp; Scaling</h2></div>
+  <div class="cols cols-2">
+    <div>
+      <div class="card amber">
+        <h3>Single Thread ≠ Single Core</h3>
+        <p>Node runs JS on one thread, but the <span class="a">cluster</span> module spawns worker processes to use all CPU cores.</p>
+      </div>
+<pre><code class="language-javascript">const cluster = require('cluster');
+const os = require('os');
+
+if (cluster.isPrimary) {
+  const cpus = os.cpus().length;
+  console.log(`Forking ${cpus} workers`);
+
+  for (let i = 0; i &lt; cpus; i++) {
+    cluster.fork();
+  }
+
+  cluster.on('exit', (worker) =&gt; {
+    console.log(`Worker ${worker.process.pid} died`);
+    cluster.fork(); // auto-restart
+  });
+} else {
+  require('./server'); // each worker runs server
+}</code></pre>
+    </div>
+    <div>
+      <div class="card green">
+        <h3>Worker Threads</h3>
+        <p>For CPU-intensive tasks (image processing, crypto, parsing), offload to worker threads to avoid blocking the event loop.</p>
+      </div>
+<pre><code class="language-javascript">const { Worker } = require('worker_threads');
+
+function runHeavyTask(data) {
+  return new Promise((resolve, reject) =&gt; {
+    const worker = new Worker('./heavy-task.js', {
+      workerData: data
+    });
+    worker.on('message', resolve);
+    worker.on('error', reject);
+  });
+}
+
+const result = await runHeavyTask({ iterations: 1e8 });</code></pre>
+      <div class="card blue" style="margin-top:.3em;">
+        <h3>Key Metrics to Monitor</h3>
+        <ul>
+          <li>Event loop lag (should be &lt; 100ms)</li>
+          <li>Heap used vs heap total</li>
+          <li>Active handles and requests</li>
+          <li>GC pause duration</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════ SLIDE 19 — ECOSYSTEM ═══════════════════════════════ -->
+<section>
+  <div class="slide-hdr"><span class="tag">19</span><h2>The Node.js Ecosystem</h2></div>
+  <div class="cols cols-3">
+    <div class="card amber">
+      <h3>Web Frameworks</h3>
+      <ul>
+        <li><span class="a">Express</span> &mdash; minimal, ubiquitous</li>
+        <li><span class="g">Fastify</span> &mdash; schema validation, speed</li>
+        <li><span class="p">NestJS</span> &mdash; Angular-inspired, TypeScript</li>
+        <li><span class="b">Hono</span> &mdash; edge-first, ultralight</li>
+        <li><span class="r">Adonis</span> &mdash; full-stack, Laravel-like</li>
+      </ul>
+    </div>
+    <div class="card green">
+      <h3>Databases</h3>
+      <ul>
+        <li><span class="a">Prisma</span> &mdash; type-safe ORM</li>
+        <li><span class="g">Knex</span> &mdash; SQL query builder</li>
+        <li><span class="p">Mongoose</span> &mdash; MongoDB ODM</li>
+        <li><span class="b">pg / mysql2</span> &mdash; raw drivers</li>
+        <li><span class="r">ioredis</span> &mdash; Redis client</li>
+      </ul>
+    </div>
+    <div class="card purple">
+      <h3>Real-Time</h3>
+      <ul>
+        <li><span class="a">Socket.IO</span> &mdash; WebSocket abstraction</li>
+        <li><span class="g">ws</span> &mdash; lightweight WebSocket lib</li>
+        <li><span class="p">SSE</span> &mdash; server-sent events (built-in)</li>
+        <li><span class="b">GraphQL Subscriptions</span></li>
+        <li><span class="r">MQTT.js</span> &mdash; IoT messaging</li>
+      </ul>
+    </div>
+    <div class="card blue">
+      <h3>DevOps &amp; Tooling</h3>
+      <ul>
+        <li><span class="a">PM2</span> &mdash; process manager, clustering</li>
+        <li><span class="g">nodemon</span> &mdash; auto-restart in dev</li>
+        <li><span class="p">ESLint</span> &mdash; linting</li>
+        <li><span class="b">Prettier</span> &mdash; formatting</li>
+        <li><span class="r">tsx / ts-node</span> &mdash; TypeScript execution</li>
+      </ul>
+    </div>
+    <div class="card red">
+      <h3>Testing</h3>
+      <ul>
+        <li><span class="a">Jest</span> &mdash; all-in-one test runner</li>
+        <li><span class="g">Vitest</span> &mdash; Vite-native, fast</li>
+        <li><span class="p">Mocha + Chai</span> &mdash; classic combo</li>
+        <li><span class="b">Supertest</span> &mdash; HTTP assertions</li>
+        <li><span class="r">node:test</span> &mdash; built-in test runner</li>
+      </ul>
+    </div>
+    <div class="card amber">
+      <h3>Full-Stack Frameworks</h3>
+      <ul>
+        <li><span class="a">Next.js</span> &mdash; React SSR/SSG</li>
+        <li><span class="g">Nuxt</span> &mdash; Vue SSR/SSG</li>
+        <li><span class="p">Remix</span> &mdash; web standards, React</li>
+        <li><span class="b">SvelteKit</span> &mdash; Svelte full-stack</li>
+        <li><span class="r">Astro</span> &mdash; content-focused, multi-framework</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════ SLIDE 20 — SUMMARY ═══════════════════════════════ -->
+<section>
+  <div class="slide-hdr"><span class="tag">20</span><h2>Summary &amp; Next Steps</h2></div>
+  <div class="cols cols-2">
+    <div>
+      <div class="card amber">
+        <h3>Key Takeaways</h3>
+        <ul>
+          <li>Node.js = V8 + libuv &mdash; JavaScript on the server</li>
+          <li>Event-driven, non-blocking I/O for high concurrency</li>
+          <li>The event loop is single-threaded; don't block it</li>
+          <li>Use <code>async/await</code> for clean async code</li>
+          <li>Streams for memory-efficient data processing</li>
+          <li>npm is the world's largest package ecosystem</li>
+          <li>Express is the de facto web framework (but explore Fastify)</li>
+          <li>Security, error handling, and graceful shutdown matter</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="card green">
+        <h3>Recommended Reading</h3>
+        <ul>
+          <li><span class="a">nodejs.org/docs</span> &mdash; official API reference</li>
+          <li><span class="g">Node.js Design Patterns</span> &mdash; Casciaro &amp; Mammino</li>
+          <li><span class="p">Distributed Systems with Node.js</span> &mdash; Thomas Hunter II</li>
+          <li><span class="b">javascript.info</span> &mdash; modern JS tutorial</li>
+        </ul>
+      </div>
+      <div class="card purple" style="margin-top:.3em;">
+        <h3>Try These</h3>
+        <ul>
+          <li>Build a REST API with Express + a real database</li>
+          <li>Write a CLI tool using Node's built-in modules</li>
+          <li>Create a real-time chat with Socket.IO</li>
+          <li>Deploy to a cloud provider with Docker</li>
+          <li>Contribute to an open-source Node.js project</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <p style="text-align:center; margin-top:.5em; color:var(--muted); font-size:.5em;">
+    <span class="a">Thank you!</span> &mdash; Built with Reveal.js &middot; Single self-contained HTML file
+  </p>
+</section>
+
+
+</div><!-- /slides -->
+</div><!-- /reveal -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/plugin/highlight/highlight.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/plugin/highlight/monokai.min.css">
+<script>
+Reveal.initialize({
+  hash: true,
+  transition: 'fade',
+  transitionSpeed: 'fast',
+  controls: true,
+  progress: true,
+  center: false,
+  width: 1100,
+  height: 900,
+  margin: 0.01,
+  plugins: [RevealHighlight],
+  highlight: { theme: 'monokai' }
+});
+</script>
+<script>
+(function(){
+  var h = Reveal.getConfig().height || 900;
+  var m = Reveal.getConfig().margin || 0.02;
+  var maxH = Math.floor(h * (1 - 2 * m)) + 'px';
+  function fixSlides(){
+    document.querySelectorAll('.reveal .slides>section,.reveal .slides>section>section').forEach(function(s){
+      s.style.display = 'block';
+      s.style.maxHeight = maxH;
+    });
+  }
+  Reveal.on('ready', fixSlides);
+  Reveal.on('slidechanged', fixSlides);
+})();
+</script>
+</body>
+</html>
