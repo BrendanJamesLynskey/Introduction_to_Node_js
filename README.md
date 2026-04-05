@@ -4,6 +4,8 @@ An interactive Reveal.js presentation covering Node.js — from the V8 engine an
 
 ## ▶ [Open the Presentation](https://brendanjameslynskey.github.io/Introduction_to_Node_js/)
 
+## 📄 [Markdown Version](presentation.md)
+
 ---
 
 ## Contents
